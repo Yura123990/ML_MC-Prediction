@@ -10,10 +10,7 @@ from montecarlo import monte_carlo, mc_cataclysm
 from regr import regr, regr_cataclysm
 from result import graph_res
 
-def predict(datafile, Ks):
-    np.random.seed(42)
-
-    df = dataprocess(datafile)
+def predict(df, Ks, years, years_future, features, fig):
 
     mask_train = df['gdp'].notna() & df['salary_index'].notna()
     if mask_train.any():
@@ -29,15 +26,22 @@ def predict(datafile, Ks):
     features = ['year', 'gdp', 'salary_index', 'trade_balance']
     components = ['births', 'deaths', 'immigrants', 'emigrants']
 
-    years = df['year']
-    years_future = np.arange(2023, 2033)
-
     df_res = regr(df_clean, years_future, features, components)
     df_res_c = regr_cataclysm(df_clean, years_future, features, components, Ks)
 
     mcres = monte_carlo(df_clean, years_future)
     mcres_c = mc_cataclysm(df_clean, years_future, Ks)
 
-    graph_res(years, years_future, df, df_res, df_res_c, mcres, mcres_c)
+    graph_res(years, years_future, df, df_res, df_res_c, mcres, mcres_c, fig)
 
-predict("stats/main_dataset.csv", 0.583)
+    export_data = pd.DataFrame({
+        'Year': years_future,
+        'Linear_Inertial': df_res['linear_pop'].values,
+        'Poly_Inertial': df_res['poly_pop'].values,
+        'Linear_Shock': df_res_c['linear_pop'].values,
+        'Poly_Shock': df_res_c['poly_pop'].values,
+        'MonteCarlo_Mean_Inertial': np.mean(mcres, axis=0),
+        'MonteCarlo_Mean_Shock': np.mean(mcres_c, axis=0)
+    })
+
+    return export_data

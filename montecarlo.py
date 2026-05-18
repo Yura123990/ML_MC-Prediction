@@ -11,7 +11,7 @@ def monte_carlo(df, years_future):
         }
 
     print("Історична статистика для Монте-Карло зібрана!")
-    n_simulations = 5000
+    n_simulations = 50000
     initial_pop = df['population'].iloc[-1]
 
     mc_population_results = np.zeros((n_simulations, len(years_future)))

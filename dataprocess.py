@@ -4,7 +4,7 @@ import pandas as pd
 def dataprocess(file):
     df = pd.read_csv(file, sep=';', decimal=',')
 
-    for c in ['population', 'gdp', 'salary_avg', 'salary_index', 'export', 'import']:
+    for c in df.columns.tolist():
         if c in df.columns and not pd.api.types.is_numeric_dtype(df[c]):
             df[c] = df[c].astype(str).str.replace(',', '.').replace('nan', np.nan).astype(float)
 
